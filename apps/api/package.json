@@ -1,0 +1,21 @@
+{
+    "name": "lynx-api",
+    "version": "0.0.0",
+    "scripts": {
+        "build": "tsc",
+        "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+        "start": "node dist/index.js"
+    },
+    "dependencies": {
+        "fastify": "^4.0.0",
+        "@fastify/cors": "^8.0.0",
+        "@lynx/core": "*",
+        "@lynx/shared": "*",
+        "zod": "^3.22.0"
+    },
+    "devDependencies": {
+        "typescript": "^5.0.0",
+        "ts-node-dev": "^2.0.0",
+        "@types/node": "^18.0.0"
+    }
+}

@@ -1,0 +1,19 @@
+{
+    "name": "@lynx/core",
+    "version": "0.0.0",
+    "main": "./src/index.ts",
+    "types": "./src/index.ts",
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc -w",
+        "test": "ts-node test/demo.ts"
+    },
+    "dependencies": {
+        "@lynx/shared": "*",
+        "zod": "^3.22.0"
+    },
+    "devDependencies": {
+        "typescript": "^5.0.0",
+        "ts-node": "^10.9.1"
+    }
+}
