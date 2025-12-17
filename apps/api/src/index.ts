@@ -1,6 +1,6 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
-import { StreamOrchestrator, ManualStrategy, LLMProvider } from '@lynx/core';
+import { StreamOrchestrator, ManualStrategy, LLMProvider, OllamaProvider } from '@lynx/core';
 import { LynxRequestSchema } from '@lynx/shared';
 import { z } from 'zod';
 
@@ -27,10 +27,15 @@ class MockProvider implements LLMProvider {
     }
 }
 
-const providers = [
-    new MockProvider('gpt4', 'GPT-4', 100),
-    new MockProvider('claude', 'Claude 3', 150), // slightly slower
-    new MockProvider('local', 'Local Llama', 50), // fast
+// Registry approach
+const providers: LLMProvider[] = [
+    new MockProvider('gpt4', 'GPT-4 (Mock)', 100),
+    new MockProvider('claude', 'Claude 3 (Mock)', 150),
+
+    // Local Ollama instance
+    // Ensure you have `ollama run llama3` (or any other model) running
+    new OllamaProvider('gpt-oss', 'GPT OSS (Local)', 'gpt-oss'),
+    new OllamaProvider('gemma3', 'Gemma 3 (Local)', 'gemma3'),
 ];
 
 const strategy = new ManualStrategy();
