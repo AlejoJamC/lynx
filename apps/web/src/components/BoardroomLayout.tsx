@@ -4,10 +4,11 @@ import { useSyncScroll } from '../hooks/useSyncScroll';
 import { CommandCenter } from './CommandCenter';
 import { ModelStreamCard } from './ModelStreamCard';
 import { SynthesisCard } from './SynthesisCard';
+import { StatusPill } from './StatusPill';
 import { LayoutGrid } from 'lucide-react';
 
 export const BoardroomLayout: React.FC = () => {
-    const { generate, streams, synthesis, isStreaming } = useLynxStream();
+    const { generate, stop, streams, synthesis, isStreaming } = useLynxStream();
 
     // Create refs for sync scrolling based on active streams
     const streamList = useMemo(() => Array.from(streams.values()), [streams]);
@@ -26,12 +27,15 @@ export const BoardroomLayout: React.FC = () => {
     return (
         <div className="flex flex-col h-screen bg-background text-slate-200 overflow-hidden">
             {/* Header Logo */}
-            <div className="bg-slate-950 px-6 py-3 border-b border-slate-800 flex items-center gap-3">
-                <LayoutGrid className="w-6 h-6 text-primary" />
-                <span className="font-bold text-lg tracking-tight">LYNX <span className="text-slate-600 font-normal">BOARDROOM</span></span>
+            <div className="bg-slate-950 px-6 py-3 border-b border-slate-800 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <LayoutGrid className="w-6 h-6 text-primary" />
+                    <span className="font-bold text-lg tracking-tight">LYNX <span className="text-slate-600 font-normal">BOARDROOM</span></span>
+                </div>
+                <StatusPill />
             </div>
 
-            <CommandCenter onSummon={handleSummon} isStreaming={isStreaming} />
+            <CommandCenter onSummon={generate} onStop={stop} isStreaming={isStreaming} />
 
             <div className="flex-1 overflow-hidden flex flex-col p-6 max-w-7xl mx-auto w-full">
                 {/* Synthesis Overlay */}

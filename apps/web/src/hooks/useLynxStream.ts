@@ -13,11 +13,25 @@ export const useLynxStream = () => {
     const [streams, setStreams] = useState<Map<string, ModelStreamState>>(new Map());
     const [synthesis, setSynthesis] = useState<string>('');
     const [isStreaming, setIsStreaming] = useState(false);
+    const abortControllerRef = useRef<AbortController | null>(null);
 
-    // Keep track of active streams to avoid stale closure issues in the loop if needed,
-    // but simpler to accumulate in a local variable and update state periodically.
+    const stop = useCallback(() => {
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+            abortControllerRef.current = null;
+            setIsStreaming(false);
+        }
+    }, []);
 
     const generate = useCallback(async (prompt: string, modelIds: string[]) => {
+        // Cancel previous if any
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+        }
+
+        const abortController = new AbortController();
+        abortControllerRef.current = abortController;
+
         setIsStreaming(true);
         setSynthesis('');
 
@@ -39,6 +53,7 @@ export const useLynxStream = () => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ prompt, modelIds, includeSynthesis: true }),
+                signal: abortController.signal
             });
 
             if (!response.ok) throw new Error(response.statusText);
@@ -107,12 +122,17 @@ export const useLynxStream = () => {
                     }
                 }
             }
-        } catch (err) {
-            console.error("Stream failed", err);
+        } catch (err: any) {
+            if (err.name === 'AbortError') {
+                console.log("Stream aborted by user");
+            } else {
+                console.error("Stream failed", err);
+            }
         } finally {
             setIsStreaming(false);
+            abortControllerRef.current = null;
         }
     }, []);
 
-    return { generate, streams, synthesis, isStreaming };
+    return { generate, stop, streams, synthesis, isStreaming };
 };

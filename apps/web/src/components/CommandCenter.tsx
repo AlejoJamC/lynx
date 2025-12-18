@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Play } from 'lucide-react';
+import { Play, Square } from 'lucide-react';
 import clsx from 'clsx';
 
 interface Props {
     onSummon: (prompt: string, models: string[]) => void;
+    onStop: () => void;
     isStreaming: boolean;
 }
 
@@ -14,7 +15,7 @@ const AVAILABLE_MODELS = [
     { id: 'gemma3', label: 'Gemma 3', type: 'LOCAL' },
 ];
 
-export const CommandCenter: React.FC<Props> = ({ onSummon, isStreaming }) => {
+export const CommandCenter: React.FC<Props> = ({ onSummon, onStop, isStreaming }) => {
     const [prompt, setPrompt] = useState('');
     const [selectedModels, setSelectedModels] = useState<string[]>(['gpt-oss', 'gemma3']);
 
@@ -68,25 +69,29 @@ export const CommandCenter: React.FC<Props> = ({ onSummon, isStreaming }) => {
                         ))}
                     </div>
 
-                    <button
-                        onClick={handleSubmit}
-                        disabled={isStreaming || !prompt || selectedModels.length === 0}
-                        className={clsx(
-                            "flex items-center justify-center gap-2 py-3 px-6 rounded-lg font-bold text-sm uppercase tracking-wider transition-all shadow-lg",
-                            isStreaming
-                                ? "bg-slate-800 text-slate-500 cursor-not-allowed"
-                                : "bg-primary hover:bg-blue-600 text-white shadow-blue-500/20"
-                        )}
-                    >
-                        {isStreaming ? (
-                            <span>Session in progress...</span>
-                        ) : (
-                            <>
-                                <Play className="w-4 h-4 fill-current" />
-                                Summon Board
-                            </>
-                        )}
-                    </button>
+                    {isStreaming ? (
+                        <button
+                            onClick={onStop}
+                            className="flex items-center justify-center gap-2 py-3 px-6 rounded-lg font-bold text-sm uppercase tracking-wider transition-all shadow-lg bg-red-600 hover:bg-red-700 text-white shadow-red-500/20 animate-pulse"
+                        >
+                            <Square className="w-4 h-4 fill-current" />
+                            Stop Session
+                        </button>
+                    ) : (
+                        <button
+                            onClick={handleSubmit}
+                            disabled={!prompt || selectedModels.length === 0}
+                            className={clsx(
+                                "flex items-center justify-center gap-2 py-3 px-6 rounded-lg font-bold text-sm uppercase tracking-wider transition-all shadow-lg",
+                                (!prompt || selectedModels.length === 0)
+                                    ? "bg-slate-800 text-slate-500 cursor-not-allowed"
+                                    : "bg-primary hover:bg-blue-600 text-white shadow-blue-500/20"
+                            )}
+                        >
+                            <Play className="w-4 h-4 fill-current" />
+                            Summon Board
+                        </button>
+                    )}
                 </div>
             </div>
         </div>
