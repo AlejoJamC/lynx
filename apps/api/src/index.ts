@@ -45,6 +45,10 @@ const start = async () => {
     try {
         await fastify.register(cors);
 
+        fastify.get('/health', async (request, reply) => {
+            return { status: 'ok', providers: providers.map(p => ({ id: p.id, name: p.name })) };
+        });
+
         fastify.post('/chat', async (request, reply) => {
             try {
                 const body = LynxRequestSchema.parse(request.body);
