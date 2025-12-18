@@ -31,51 +31,75 @@ Lynx is built as a TypeScript Monorepo using **Turborepo**.
 - **Backend**: Fastify, Server-Sent Events (SSE).
 - **Frontend**: React, Tailwind CSS, Vite.
 - **Validation**: Zod.
+- **AI/LLM**: Ollama (Local), Mock Providers (Remote simulation).
 
-## Developer Guide
+## User Guide
 
-### Prerequisites
-- Node.js (v18+)
-- npm (v9+)
+### 1. Prerequisites (Local Intelligence)
 
-### Installation
+Lynx is configured to use local models via **Ollama**.
+1. Install [Ollama](https://ollama.com/).
+2. Pull the required models:
+   ```bash
+   ollama pull gemma3
+   ollama pull gpt-oss  # Or any other model you wish to map
+   ```
+3. Start the Ollama server:
+   ```bash
+   ollama serve
+   ```
+
+### 2. Installation & Start
 
 ```bash
-# Install dependencies for all workspaces
+# Install dependencies
 npm install
-```
 
-### Development
-
-Run all apps and packages in development mode:
-
-```bash
+# Start the full stack (API + Web)
 npm run dev
 ```
+- **API** runs on `http://localhost:3000`
+- **Web Interface** runs on `http://localhost:5173` (typical Vite port)
+
+### 3. Using the Boardroom UI
+
+1. Open `http://localhost:5173` in your browser.
+2. **Command Center**:
+   - Enter your prompt (e.g., "Analyze the impact of AI on privacy").
+   - Select the models you want to consult (toggle `gpt-oss`, `gemma3`, or mocks).
+   - Click **"SUMMON BOARD"**.
+3. **The Workspace**:
+   - Watch as multiple columns stream text in parallel.
+   - **Sync Scroll**: Scrolling one column will automatically scroll the others for easy line-by-line comparison.
+4. **Synthesis**:
+   - The top/highlighted card will show the **Aggregated Insight**, a synthesized summary of the board's opinions.
+
+## Developer Guide
 
 ### Build
 
 Compile all packages and apps:
-
 ```bash
 npm run build
 ```
 
 ### Verification
 
-To verify the core orchestration logic without spinning up the full server, run the standalone test script (requires `ts-node`):
-
+To verify the core orchestration logic independently:
 ```bash
 # Run the demo script in packages/core
 npm run test --workspace=@lynx/core
+
+# Verify API connection to Ollama
+npx ts-node apps/api/test-ollama.ts
 ```
 
-## detailed Flow
+## Detailed Flow
 
-1. **Client** sends a request with `prompt` and `modelIds`.
-2. **API** validates the request using `@lynx/shared` schemas.
-3. **Orchestrator** (`@lynx/core`) initializes the selected providers.
-4. **Parallel Streaming**: The orchestrator opens streams to all providers concurrently.
-5. **Merging**: Chunks are yielded instantly as they arrive from *any* provider (using async iterators and `Promise.race`).
-6. **Synthesis**: Once all models finish, an aggregator synthesizes the results for a final summary.
-7. **Client** receives a single server-sent event stream containing interleaved chunks and the final synthesis.
+1. **Client** sends request with `prompt` and `modelIds`.
+2. **API** validates request using `@lynx/shared` schemas.
+3. **Orchestrator** initializes selected providers (Ollama or Mock).
+4. **Parallel Streaming**: Opens streams to all providers concurrently.
+5. **Merging**: Chunks are yielded instantly as they arrive from *any* provider via `Promise.race`.
+6. **Synthesis**: Aggregates results after streams finish for a final summary.
+7. **Client** receives a single server-sent event stream updating the UI in real-time.
